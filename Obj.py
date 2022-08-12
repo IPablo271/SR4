@@ -4,6 +4,7 @@ class Obj(object):
             self.lines = f.read().splitlines()
         self.vertices = []
         self.faces = []
+        self.tfaces = []
 
         for line in self.lines:
             if not line:
@@ -19,6 +20,12 @@ class Obj(object):
 
                 if prefix == 'v':
                     self.vertices.append(
+                        list(
+                            map(float, value.split(' '))
+                        )
+                    )
+                if prefix == 'vt':
+                    self.tfaces.append(
                         list(
                             map(float, value.split(' '))
                         )

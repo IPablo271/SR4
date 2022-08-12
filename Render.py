@@ -30,7 +30,7 @@ class Render(object):
         #Generador del color.
         self.framebuffer = [
             #Los colores tienen que ir de 0 a 255.
-            [BLACK for x in range(self.width)] 
+            [WHITE for x in range(self.width)] 
             for y in range(self.height)
         ]
         self.zbuffer = [
@@ -39,7 +39,7 @@ class Render(object):
             for y in range(self.height)
         ]
         self.zcolor = [
-            [self.clear_color for x in range(self.width)]
+            [WHITE for x in range(self.width)]
             for y in range(self.height)
         ]
 
@@ -119,6 +119,7 @@ class Render(object):
             for y in range(self.width):
                 f.write(self.zcolor[y][x])
         f.close()
+    
 
 
     #Función que dibuja un punto en la pantalla. Esta es una función de bajo nivel. 
@@ -355,12 +356,13 @@ class Render(object):
                 if (self.zbuffer[x][y] < z):
                     self.zbuffer[x][y] = z
                     self.zcolor[x][y] = color(self.clamping(fact*255), self.clamping(fact*255), self.clamping(fact*255))
+
                     self.point(x, y)
         
  
 
-    def clamping(self,num):
-        return int(max(min(num, 255),0))
+    def clamping(self, num):
+        return int(max(min(num, 255), 0))
 
 
     # def zbuffer(self):
