@@ -30,7 +30,7 @@ class Render(object):
         #Generador del color.
         self.framebuffer = [
             #Los colores tienen que ir de 0 a 255.
-            [WHITE for x in range(self.width)] 
+            [BLACK for x in range(self.width)] 
             for y in range(self.height)
         ]
         self.zbuffer = [
@@ -39,7 +39,7 @@ class Render(object):
             for y in range(self.height)
         ]
         self.zcolor = [
-            [WHITE for x in range(self.width)]
+            [BLACK for x in range(self.width)]
             for y in range(self.height)
         ]
 
