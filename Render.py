@@ -262,7 +262,7 @@ class Render(object):
 
 
                 self.trianglem(v1,v2, v3)
-                self.trianglem(v2,v3, v4)
+                self.trianglem(v1,v3, v4)
 
             if len(face) == 3:
                 f1 = face[0][0] - 1
@@ -273,7 +273,6 @@ class Render(object):
                 v2 = self.transform_vertex (cube.vertices[f2], scale_factor , translate_factor)
                 v3 = self.transform_vertex (cube.vertices[f3], scale_factor , translate_factor)
 
-                
 
                 self.trianglem(v1, v2, v3)
     
@@ -313,7 +312,7 @@ class Render(object):
         try:
             u = cx / cz
             v = cy / cz
-            w = 1 - u - v
+            w = 1 - (u + v)
             return(w ,v ,u)
         except:
             u = - 1
@@ -364,25 +363,6 @@ class Render(object):
     def clamping(self, num):
         return int(max(min(num, 255), 0))
 
-
-    # def zbuffer(self):
-    #     copia = self.zbuffer.copy()
-    #     for x in range(self.height):
-    #         for y in range(self.width):
-    #             if copia[y][x] == -9999:
-    #                 copia[y][x] = color(0, 0, 0)
-    #             if copia[y][x] > 0:
-    #                 copia[y][x] = color(round(copia[y][x]/255),round(copia[y][x]/255),round(copia[y][x]/255))
-    #             if copia[y][x] < 0:
-    #                 copia[y][x] = color(0,0,0)
-                
-
-
-
-
-
-
-    
     def triangle(self, A , B , C):
         if A.y > B.y:
             A, B = B, A

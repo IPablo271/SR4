@@ -1,52 +1,35 @@
 class Obj(object):
-    def __init__(self, filename):
-        with open(filename) as f:
-            self.lines = f.read().splitlines()
-        self.vertices = []
-        self.faces = []
-        self.tfaces = []
+  def __init__(self, filename):
+    with open(filename) as f:
+      self.lines = f.read().splitlines()
 
-        for line in self.lines:
-            if not line:
-                continue
+    self.vertices = []
+    self.faces = []
 
-            if (len(line)== 1):
-                pass
-            else:
+    for line in self.lines:
 
-                prefix, value = line.split(' ', 1)
-                if prefix =='#':
-                    pass
+      if line:
 
-                if prefix == 'v':
-                    self.vertices.append(
-                        list(
-                            map(float, value.split(' '))
-                        )
-                    )
-                if prefix == 'vt':
-                    self.tfaces.append(
-                        list(
-                            map(float, value.split(' '))
-                        )
-                    )
-                if prefix == 'f':
-                    try:
-                        self.faces.append([
-                        list(
-                            map(
-                                int, face.split('/'))
-                            )
-                            for face in value.split(' ')
-                    ])
-                    except:
-                        self.faces.append([
-                        list(
-                            map(
-                                int, face.split('//'))
-                            )
-                            for face in value.split(' ')
-                    ])
+        if ' ' not in line:
+          continue
+
+        prefix, value = line.split(' ', 1)
+
+        if value[0] == ' ':
+          value = '' + value[1:]
+        
+        if prefix == 'v':
+          self.vertices.append(
+            list(
+              map(float, value.split(' '))
+            )
+          )
+
+        if prefix == 'f':
+          self.faces.append([
+            list(map(int, face.split('/')))
+                for face in value.split(' ') if face != ''
+          ]) 
 
 
             
