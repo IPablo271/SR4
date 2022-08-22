@@ -51,18 +51,18 @@ for face in cube.faces:
         f3 = face[2][1] - 1
 
         vt1 = V3(
-            cube.vertices[f1][0] * t.width,
-            cube.vertices[f1][1] * t.height,
+            cube.tvertices[f1][0] * t.width,
+            cube.tvertices[f1][1] * t.height,
 
         )
         vt2 = V3(
-            cube.vertices[f2][0] * t.width,
-            cube.vertices[f2][1] * t.height,
+            cube.tvertices[f2][0] * t.width,
+            cube.tvertices[f2][1] * t.height,
 
         )
         vt3 = V3(
-            cube.vertices[f3][0] * t.width,
-            cube.vertices[f3][1] * t.height,
+            cube.tvertices[f3][0] * t.width,
+            cube.tvertices[f3][1] * t.height,
 
         )
         r.linevector(vt1, vt2)
