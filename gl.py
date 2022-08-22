@@ -101,9 +101,9 @@ def fillfigure2(puntos):
         puntoy = puntosf[i][1]
         rend.line2(puntomx, puntomy, puntox,puntoy)
 
-def lmodel(model,scale_factor , translate_factor):
+def lmodel(model,scale_factor , translate_factor,texture):
     global rend
-    rend.load_model(model,scale_factor,translate_factor)
+    rend.load_model(model,scale_factor,translate_factor,texture)
 
 def createvector(v1,v2):
     global rend

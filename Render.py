@@ -3,6 +3,7 @@ from Utilities import *
 from Obj import *
 from vector import *
 import random
+from texture import *
 BLACK = color(0, 0, 0)
 WHITE = color(255, 255, 255)
 GREEN = color(0, 255 , 0)
@@ -19,6 +20,7 @@ class Render(object):
         self.viewportwidth = 0
         self.viewortheight = 0
         self.viewportcolor = GREEN
+        self.texture = None
         self.clear() #Limpiar la pantalla.
     def viewport(self,x, y,width,height):
         self.viewportx = x
@@ -242,7 +244,7 @@ class Render(object):
             (vertex[1] * scale[1]) + translate[1],
             (vertex[2] * scale[2] +  translate[2]) 
         )
-    def load_model(self, model, scale_factor, translate_factor):
+    def load_model(self, model, scale_factor, translate_factor,texture):
 
         cube = Obj(model)
 
@@ -258,11 +260,8 @@ class Render(object):
                 v3 = self.transform_vertex (cube.vertices[f3], scale_factor , translate_factor)
                 v4 = self.transform_vertex (cube.vertices[f4], scale_factor , translate_factor)
 
-
-
-
-                self.trianglem(v1,v2, v3)
-                self.trianglem(v1,v3, v4)
+                self.trianglem((v1,v2, v3))
+                self.trianglem((v1,v3, v4))
 
             if len(face) == 3:
                 f1 = face[0][0] - 1
@@ -272,9 +271,33 @@ class Render(object):
                 v1 = self.transform_vertex (cube.vertices[f1], scale_factor , translate_factor)
                 v2 = self.transform_vertex (cube.vertices[f2], scale_factor , translate_factor)
                 v3 = self.transform_vertex (cube.vertices[f3], scale_factor , translate_factor)
+                
+                if self.texture:
+                    ft1 = face[0][1] - 1
+                    ft2 = face[1][1] - 1
+                    ft3 = face[2][1] - 1
+                    vt1 = V3(
+                        cube.vertices[ft1][0] * self.texture.width,
+                        cube.vertices[ft1][1] * self.texture.height,
+                    )
+                    vt2 = V3(
+                        cube.vertices[ft1][0] * self.texture.width,
+                        cube.vertices[ft1][1] * self.texture.height,
 
+                    )
+                    vt3 = V3(
+                        cube.vertices[ft1][0] * self.texture.width,
+                        cube.vertices[ft1][1] * self.texture.height,
 
-                self.trianglem(v1, v2, v3)
+                    )
+                    self.trianglem(
+                        (v1,v2 ,v3),
+                        (vt1,vt2,vt3)
+                    )
+                
+
+                else:
+                    self.trianglem((v1, v2, v3))
     
     def bounding_box(self, A, B, C):
         coords = [(A.x, A.y), (B.x, B.y), (C.x, C.y)]
@@ -321,13 +344,13 @@ class Render(object):
             return (w, v , u)
 
 
-        
+
+    def trianglem(self, vertices,tvertices = ()):
+        A , B , C = vertices
+        if self.texture:
+            tA, tB, tC = tvertices
 
         
-
-    def trianglem(self, A , B , C):
-        
-
         L = V3(0, 0, -1)
         N = (C - A) * (B - A)
         i = L.normalize() @ N.normalize()
@@ -356,7 +379,13 @@ class Render(object):
                     self.zbuffer[x][y] = z
                     self.zcolor[x][y] = color(self.clamping(fact*255), self.clamping(fact*255), self.clamping(fact*255))
 
-                    self.point(x, y)
+                    if self.texture:
+                        tx = tA.x * w + tB.x * u + tC.x * v
+                        ty = tA.y * w + tB.y * u + tC.y * v
+
+                        self.current_color = self.texture.get_color_with_intensity(tx,ty,i)
+
+                    self.point(y, x)
         
  
 
