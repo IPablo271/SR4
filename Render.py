@@ -3,7 +3,7 @@ from Utilities import *
 from Obj import *
 from vector import *
 import random
-from texture import *
+
 BLACK = color(0, 0, 0)
 WHITE = color(255, 255, 255)
 GREEN = color(0, 255 , 0)
@@ -177,14 +177,14 @@ class Render(object):
 
         for x in range(x0, x1 + 1):
             if steep:
-                self.point(y, x)
+                self.point(x, y)
                 listatemp = []
                 listatemp.append(y)
                 listatemp.append(x)
                 listap.append(listatemp)
 
             else:
-                self.point(x, y)
+                self.point(y, x)
                 listatemp = []
                 listatemp.append(x)
                 listatemp.append(y)
@@ -272,32 +272,8 @@ class Render(object):
                 v2 = self.transform_vertex (cube.vertices[f2], scale_factor , translate_factor)
                 v3 = self.transform_vertex (cube.vertices[f3], scale_factor , translate_factor)
                 
-                if self.texture:
-                    ft1 = face[0][1] - 1
-                    ft2 = face[1][1] - 1
-                    ft3 = face[2][1] - 1
-                    vt1 = V3(
-                        cube.vertices[ft1][0] * self.texture.width,
-                        cube.vertices[ft1][1] * self.texture.height,
-                    )
-                    vt2 = V3(
-                        cube.vertices[ft1][0] * self.texture.width,
-                        cube.vertices[ft1][1] * self.texture.height,
-
-                    )
-                    vt3 = V3(
-                        cube.vertices[ft1][0] * self.texture.width,
-                        cube.vertices[ft1][1] * self.texture.height,
-
-                    )
-                    self.trianglem(
-                        (v1,v2 ,v3),
-                        (vt1,vt2,vt3)
-                    )
-                
-
-                else:
-                    self.trianglem((v1, v2, v3))
+        
+                self.trianglem((v1, v2, v3))
     
     def bounding_box(self, A, B, C):
         coords = [(A.x, A.y), (B.x, B.y), (C.x, C.y)]
