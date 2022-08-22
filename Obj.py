@@ -4,6 +4,7 @@ class Obj(object):
       self.lines = f.read().splitlines()
 
     self.vertices = []
+    self.tvertices = []
     self.faces = []
 
     for line in self.lines:
@@ -23,13 +24,20 @@ class Obj(object):
             list(
               map(float, value.split(' '))
             )
-          )
+        )
+        if prefix == 'vt':
+          self.tvertices.append(
+            list(
+              map(float, value.split(' '))
+            )
+        )
 
         if prefix == 'f':
           self.faces.append([
             list(map(int, face.split('/')))
                 for face in value.split(' ') if face != ''
-          ]) 
+        ]) 
+        
 
 
             

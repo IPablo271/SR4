@@ -77,8 +77,8 @@ class Render(object):
 
         
         
-        for x in range(self.height):
-            for y in range(self.width):
+        for y in range(self.height):
+            for x in range(self.width):
                 f.write(self.framebuffer[y][x])
         f.close()
 
