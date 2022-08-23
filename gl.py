@@ -2,6 +2,7 @@ from Render import *
 from Utilities import *
 from vector import *
 import random 
+from texture import *
 
 rend = None
 
@@ -101,20 +102,23 @@ def fillfigure2(puntos):
         puntoy = puntosf[i][1]
         rend.line2(puntomx, puntomy, puntox,puntoy)
 
-def lmodel(model,scale_factor , translate_factor,texture):
+def lmodel(model,scale_factor , translate_factor,):
     global rend
-    rend.load_model(model,scale_factor,translate_factor,texture)
+    rend.load_model(model,scale_factor,translate_factor)
 
 def createvector(v1,v2):
     global rend
     rend.linevector(v1,v2)
 
+def createtexture(textura):
+    global rend
+    rend.texture = Texture(textura)
+
 
 
 
 def glFinish():
-    rend.write("a.bmp") 
-    rend.writez('zbuffer.bmp')
+    rend.write("sr5.bmp") 
 
 
 

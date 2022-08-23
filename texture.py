@@ -1,6 +1,5 @@
 import struct
 from Utilities import *
-from Render import *
 from Obj import *
 from vector import *
 class Texture:
@@ -33,42 +32,13 @@ class Texture:
         x = round(tx * self.width)
         y = round(ty * self.height)
 
-        b = self.pixels[y][x][0] * intensity
-        g = self.pixels[y][x][1] * intensity
-        r = self.pixels[y][x][2] * intensity
+        b = round(self.pixels[y][x][0] * intensity)
+        g = round(self.pixels[y][x][1] * intensity)
+        r = round(self.pixels[y][x][2] * intensity)
         
         return color(r,g,b)
 
-r = Render(1024, 1024)
-t = Texture('model.bmp')
-r.framebuffer = t.pixels
 
-cube = Obj('model.obj')
-for face in cube.faces:
-    if len(face) == 3:
-        f1 = face[0][1] - 1
-        f2 = face[1][1] - 1
-        f3 = face[2][1] - 1
 
-        vt1 = V3(
-            cube.tvertices[f1][0] * t.width,
-            cube.tvertices[f1][1] * t.height,
-
-        )
-        vt2 = V3(
-            cube.tvertices[f2][0] * t.width,
-            cube.tvertices[f2][1] * t.height,
-
-        )
-        vt3 = V3(
-            cube.tvertices[f3][0] * t.width,
-            cube.tvertices[f3][1] * t.height,
-
-        )
-        r.linevector(vt1, vt2)
-        r.linevector(vt2, vt3)
-        r.linevector(vt3, vt1)
-
-r.write('t.bmp')
 
 

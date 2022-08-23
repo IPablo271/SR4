@@ -3,6 +3,7 @@ from Utilities import *
 from Obj import *
 from vector import *
 import random
+from texture import *
 
 BLACK = color(0, 0, 0)
 WHITE = color(255, 255, 255)
@@ -228,9 +229,9 @@ class Render(object):
 
         for x in range(x0, x1 + 1):
             if steep:
-                self.point(y, x)
-            else:
                 self.point(x, y)
+            else:
+                self.point(y, x)
 
             offset += dy * 2
 
@@ -244,7 +245,7 @@ class Render(object):
             (vertex[1] * scale[1]) + translate[1],
             (vertex[2] * scale[2] +  translate[2]) 
         )
-    def load_model(self, model, scale_factor, translate_factor,texture):
+    def load_model(self, model, scale_factor, translate_factor):
 
         cube = Obj(model)
 
@@ -260,8 +261,23 @@ class Render(object):
                 v3 = self.transform_vertex (cube.vertices[f3], scale_factor , translate_factor)
                 v4 = self.transform_vertex (cube.vertices[f4], scale_factor , translate_factor)
 
-                self.trianglem((v1,v2, v3))
-                self.trianglem((v1,v3, v4))
+                if self.texture:
+                    ft1 = face[0][1] - 1
+                    ft2 = face[1][1] - 1
+                    ft3 = face[2][1] - 1
+                    ft4 = face[3][1] - 1
+
+                    vt1 = V3(*cube.tvertices[ft1])
+                    vt2 = V3(*cube.tvertices[ft2])
+                    vt3 = V3(*cube.tvertices[ft3]) 
+                    vt4 = V3(*cube.tvertices[ft4])
+
+                    self.trianglem((v1,v2,v3),(vt1,vt2,vt3))
+                    self.trianglem((v1,v3,v4),(vt1,vt3,vt4))
+                    
+                else:
+                    self.trianglem((v1,v2, v3))
+                    self.trianglem((v1,v3, v4))
 
             if len(face) == 3:
                 f1 = face[0][0] - 1
@@ -271,9 +287,20 @@ class Render(object):
                 v1 = self.transform_vertex (cube.vertices[f1], scale_factor , translate_factor)
                 v2 = self.transform_vertex (cube.vertices[f2], scale_factor , translate_factor)
                 v3 = self.transform_vertex (cube.vertices[f3], scale_factor , translate_factor)
-                
+
+                if self.texture:
+                    ft1 = face[0][1] - 1
+                    ft2 = face[1][1] - 1
+                    ft3 = face[2][1] - 1
+
+                    vt1 = V3(*cube.tvertices[ft1])
+                    vt2 = V3(*cube.tvertices[ft2])
+                    vt3 = V3(*cube.tvertices[ft3])    
         
-                self.trianglem((v1, v2, v3))
+                    self.trianglem((v1,v2,v3),(vt1, vt2, vt3))
+
+                else:
+                    self.trianglem((v1, v2, v3))
     
     def bounding_box(self, A, B, C):
         coords = [(A.x, A.y), (B.x, B.y), (C.x, C.y)]
