@@ -102,9 +102,9 @@ def fillfigure2(puntos):
         puntoy = puntosf[i][1]
         rend.line2(puntomx, puntomy, puntox,puntoy)
 
-def lmodel(model,scale_factor , translate_factor,):
+def lmodel(model,scale_factor , translate_factor,rotatefactor):
     global rend
-    rend.load_model(model,scale_factor,translate_factor)
+    rend.load_model(model,scale_factor,translate_factor,rotatefactor)
 
 def createvector(v1,v2):
     global rend
@@ -118,7 +118,7 @@ def createtexture(textura):
 
 
 def glFinish():
-    rend.write("sr5.bmp") 
+    rend.write("sr6.bmp") 
 
 
 

@@ -1,13 +1,17 @@
-
+from numpy import *
 from Utilities import * 
 from Obj import *
 from vector import *
 import random
 from texture import *
 
+from numpy.linalg import norm
+
+
 BLACK = color(0, 0, 0)
 WHITE = color(255, 255, 255)
 GREEN = color(0, 255 , 0)
+
 
 class Render(object):
    
@@ -22,12 +26,62 @@ class Render(object):
         self.viewortheight = 0
         self.viewportcolor = GREEN
         self.texture = None
+        self.Model = None
         self.clear() #Limpiar la pantalla.
     def viewport(self,x, y,width,height):
         self.viewportx = x
         self.viewporty = y
         self.viewportwidth = width
         self.viewortheight = height
+    
+    def loadModelMatrix(self,translatep=(0,0,0), scalep=(1,1,1), rotatep=(0,0,0) ):
+        translate = V3(*translatep)
+        scale = V3(*scalep)
+        rotate = V3(*rotatep)
+        translation_matrix = matrix([
+            [1,0,0,translate.x],
+            [0,1,0,translate.y],
+            [0,0,1,translate.z],
+            [0,0,0,1]     
+        ])
+        scale_matrix = matrix([
+            [scale.x,0,0,0],
+            [0,scale.y,0,0],
+            [0,0,scale.z,0],
+            [0,0,0,1]     
+        ])
+        a = rotate.x
+        rotation_x = matrix([
+            [1,0,0,0],
+            [0,cos(a),-sin(a),0],
+            [0,sin(a),cos(a),0],
+            [0,0,0,1]     
+        ])
+        a = rotate.y
+        rotation_y = matrix([
+            [cos(a),0,sin(a),0],
+            [0,1,0,0],
+            [-sin(a),0,cos(a),0],
+            [0,0,0,1]     
+        ])
+        a = rotate.z
+        rotation_z = matrix([
+            [cos(a),-sin(a),0,0],
+            [sin(a),cos(a),0,0],
+            [0,0,1,0],
+            [0,0,0,1]     
+        ])
+        rotation_matrix = rotation_x @ rotation_y @ rotation_z
+
+        self.Model = translation_matrix @ rotation_matrix @ scale_matrix
+    
+    def loadViewMatrix(self,x,y,z,center):
+        print(x,y,z)
+    
+    def lookAt(self,eye,center,up):
+        z = (eye - center).norm()
+        x = cross(up @ z).norm()
+        y = cross(z,x).norm()
    
     def clear(self):
         #Generador del color.
@@ -53,8 +107,8 @@ class Render(object):
         f = open(filename, "bw")
         
         #Pixel header.
-        f.write(char('B'))
-        f.write(char('M'))
+        f.write(chart('B'))
+        f.write(chart('M'))
         #Tamaño del archivo en bytes. 
         # El 3 es para los 3 bytes que seguirán. El 14 es el tamaño del infoheader y el 40 es el tamaño del otro header.
         f.write(dword(14 + 40 + self.width * self.height * 3))
@@ -239,14 +293,23 @@ class Render(object):
                 y += 1 if y0 < y1 else -1
 
                 threshold += dx * 2
-    def transform_vertex(self,vertex,scale,translate):
-        return V3(
-            (vertex[0] * scale[0]) + translate[0], 
-            (vertex[1] * scale[1]) + translate[1],
-            (vertex[2] * scale[2] +  translate[2]) 
-        )
-    def load_model(self, model, scale_factor, translate_factor):
+    def transform_vertex(self,vertex):
+        augmented_vertex = [
+            vertex[0],
+            vertex[1],
+            vertex[2],
+            1
+        ]
 
+        transformed_vertex = self.Model @ augmented_vertex
+        transformed_vertex = V3(transformed_vertex)
+        return V3(
+            transformed_vertex.x / transformed_vertex.w,
+            transformed_vertex.y / transformed_vertex.w,
+            transformed_vertex.z / transformed_vertex.w,
+        )
+    def load_model(self, model, scale_factorn =(1,1,1), translate_factor=(0,0,0),rotate=(0,0,0)):
+        self.loadModelMatrix(translate_factor,scale_factorn,rotate)
         cube = Obj(model)
 
         for face in cube.faces:
@@ -256,10 +319,10 @@ class Render(object):
                 f3 = face[2][0] - 1
                 f4 = face[3][0] - 1
 
-                v1 = self.transform_vertex (cube.vertices[f1], scale_factor , translate_factor)
-                v2 = self.transform_vertex (cube.vertices[f2], scale_factor , translate_factor)
-                v3 = self.transform_vertex (cube.vertices[f3], scale_factor , translate_factor)
-                v4 = self.transform_vertex (cube.vertices[f4], scale_factor , translate_factor)
+                v1 = self.transform_vertex (cube.vertices[f1] )
+                v2 = self.transform_vertex (cube.vertices[f2] )
+                v3 = self.transform_vertex (cube.vertices[f3] )
+                v4 = self.transform_vertex (cube.vertices[f4] )
 
                 if self.texture:
                     ft1 = face[0][1] - 1
@@ -284,9 +347,9 @@ class Render(object):
                 f2 = face[1][0] - 1
                 f3 = face[2][0] - 1
 
-                v1 = self.transform_vertex (cube.vertices[f1], scale_factor , translate_factor)
-                v2 = self.transform_vertex (cube.vertices[f2], scale_factor , translate_factor)
-                v3 = self.transform_vertex (cube.vertices[f3], scale_factor , translate_factor)
+                v1 = self.transform_vertex (cube.vertices[f1])
+                v2 = self.transform_vertex (cube.vertices[f2])
+                v3 = self.transform_vertex (cube.vertices[f3])
 
                 if self.texture:
                     ft1 = face[0][1] - 1

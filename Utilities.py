@@ -1,5 +1,5 @@
 import struct
-def char(c):
+def chart(c):
     #Ocupa 1 byte.
     #=c es para que sea un caracter. El encode es para convertir el caracter a bits. El =c es para convertir esos bits a bytes.
     return struct.pack("=c", c.encode('ascii'))
