@@ -114,11 +114,15 @@ def createtexture(textura):
     global rend
     rend.texture = Texture(textura)
 
+def glLookAt(eye,center,up):
+    global rend
+    rend.lookAt(eye,center,up)
 
 
 
-def glFinish():
-    rend.write("sr6.bmp") 
+
+def glFinish(archivo):
+    rend.write(archivo) 
 
 
 

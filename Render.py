@@ -1,12 +1,10 @@
-from numpy import *
 from Utilities import * 
 from Obj import *
 from vector import *
 import random
 from texture import *
-
-from numpy.linalg import norm
-
+from matriz import *
+import math
 
 BLACK = color(0, 0, 0)
 WHITE = color(255, 255, 255)
@@ -27,6 +25,7 @@ class Render(object):
         self.viewportcolor = GREEN
         self.texture = None
         self.Model = None
+        self.View = None
         self.clear() #Limpiar la pantalla.
     def viewport(self,x, y,width,height):
         self.viewportx = x
@@ -38,50 +37,97 @@ class Render(object):
         translate = V3(*translatep)
         scale = V3(*scalep)
         rotate = V3(*rotatep)
-        translation_matrix = matrix([
-            [1,0,0,translate.x],
-            [0,1,0,translate.y],
-            [0,0,1,translate.z],
-            [0,0,0,1]     
-        ])
-        scale_matrix = matrix([
-            [scale.x,0,0,0],
-            [0,scale.y,0,0],
-            [0,0,scale.z,0],
-            [0,0,0,1]     
-        ])
-        a = rotate.x
-        rotation_x = matrix([
-            [1,0,0,0],
-            [0,cos(a),-sin(a),0],
-            [0,sin(a),cos(a),0],
-            [0,0,0,1]     
-        ])
-        a = rotate.y
-        rotation_y = matrix([
-            [cos(a),0,sin(a),0],
-            [0,1,0,0],
-            [-sin(a),0,cos(a),0],
-            [0,0,0,1]     
-        ])
-        a = rotate.z
-        rotation_z = matrix([
-            [cos(a),-sin(a),0,0],
-            [sin(a),cos(a),0,0],
-            [0,0,1,0],
-            [0,0,0,1]     
-        ])
-        rotation_matrix = rotation_x @ rotation_y @ rotation_z
 
-        self.Model = translation_matrix @ rotation_matrix @ scale_matrix
+        translation_matrix = matriz([
+            [1, 0, 0, translate.x],
+            [0, 1, 0, translate.y],
+            [0, 0, 1, translate.z],
+            [0, 0, 0,           1]
+        ])
+
+        scale_matrix = matriz([
+            [scale.x, 0, 0, 0],
+            [0, scale.y, 0, 0],
+            [0, 0, scale.z, 0],
+            [0, 0, 0, 1]
+        ])
+
+        a = rotate.x
+        rotation_x = matriz([
+            [1,      0,       0, 0],
+            [0, math.cos(a), -math.sin(a), 0],
+            [0, math.sin(a),  math.cos(a), 0],
+            [0,      0,       0, 1]
+        ])
+
+        a = rotate.y
+        rotation_y = matriz([
+            [math.cos(a), 0, math.sin(a), 0],
+            [0, 1,      0, 0],
+            [-math.sin(a), 0, math.cos(a), 0],
+            [0, 0,      0, 1]
+        ])
+
+        a = rotate.z
+        rotation_z = matriz([
+            [math.cos(a), -math.sin(a), 0, 0],
+            [math.sin(a), math.cos(a), 0, 0],
+            [0, 0, 1, 0],
+            [0, 0, 0, 1]
+        ])
+
+        rotation_matrix = rotation_x * rotation_y * rotation_z
+
+        self.Model = translation_matrix * rotation_matrix * scale_matrix
+
     
-    def loadViewMatrix(self,x,y,z,center):
-        print(x,y,z)
+    def loadViewMatrix(self, x, y, z, center):
+        Mi = matriz([
+            [x.x, x.y, x.z, 0],
+            [y.x, y.y, y.z, 0],
+            [z.x, z.y, z.z, 0],
+            [0, 0, 0, 1],
+        ])
+        Op = matriz([
+            [1, 0, 0, -center.x],
+            [0, 1, 0, -center.y],
+            [0, 0, 1, -center.z],
+            [0, 0, 0,         1]
+        ])
+
+        self.View = Mi * Op
+    def loadProjectionMatrix(self, eyes, center):
+        coeff = -1/(eyes.length() - center.length())
+        self.Projection = matriz([
+            [1, 0,      0, 0],
+            [0, 1,      0, 0],
+            [0, 0,      1, 0],
+            [0, 0, coeff, 1]
+        ])
+    def loadViewportMatrix(self):
+        x = 0
+        y = 0
+        w = self.width/2
+        h = self.height/2
+        self.Viewportmatrix = matriz([
+            [w, 0,   0, x + w],
+            [0, h,   0, y + h],
+            [0, 0, 128,   128],
+            [0, 0,   0,     1]
+        ])
+    
+    
     
     def lookAt(self,eye,center,up):
-        z = (eye - center).norm()
-        x = cross(up @ z).norm()
-        y = cross(z,x).norm()
+
+        z = (eye - center).normalize()
+        x = (up * z).normalize()
+        y = (z * x).normalize()
+        self.loadViewMatrix(x, y, z, center)
+        self.loadProjectionMatrix(eye, center)
+        self.loadViewportMatrix()
+
+
    
     def clear(self):
         #Generador del color.
@@ -294,20 +340,24 @@ class Render(object):
 
                 threshold += dx * 2
     def transform_vertex(self,vertex):
-        augmented_vertex = [
-            vertex[0],
-            vertex[1],
-            vertex[2],
-            1
-        ]
+        augmented_vertex = matriz([
+            [vertex[0]],
+            [vertex[1]],
+            [vertex[2]],
+            [1]
+        ])
+        if(self.View and self.Projection):
+            transformed_vertex = (self.Viewportmatrix * self.Projection *
+                                  self.View * self.Model * augmented_vertex).matriz
+        else:
+            transformed_vertex = (self.Model * augmented_vertex).matriz
 
-        transformed_vertex = self.Model @ augmented_vertex
-        transformed_vertex = V3(transformed_vertex)
         return V3(
-            transformed_vertex.x / transformed_vertex.w,
-            transformed_vertex.y / transformed_vertex.w,
-            transformed_vertex.z / transformed_vertex.w,
+            transformed_vertex[0][0] / transformed_vertex[3][0],
+            transformed_vertex[1][0] / transformed_vertex[3][0],
+            transformed_vertex[2][0] / transformed_vertex[3][0],
         )
+
     def load_model(self, model, scale_factorn =(1,1,1), translate_factor=(0,0,0),rotate=(0,0,0)):
         self.loadModelMatrix(translate_factor,scale_factorn,rotate)
         cube = Obj(model)
@@ -441,7 +491,11 @@ class Render(object):
                 z = A.z * w + B.z * v + C.z * u
 
                 fact = z/self.width
-                if (self.zbuffer[x][y] < z):
+                if (
+                    x >= 0 and
+                    y >= 0 and
+                    x < len(self.zbuffer) and 
+                    y < len(self.zbuffer[0]) and self.zbuffer[x][y] < z):
                     self.zbuffer[x][y] = z
                     self.zcolor[x][y] = color(self.clamping(fact*255), self.clamping(fact*255), self.clamping(fact*255))
 
