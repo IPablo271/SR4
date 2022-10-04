@@ -118,6 +118,12 @@ def glLookAt(eye,center,up):
     global rend
     rend.lookAt(eye,center,up)
 
+def glactiveshader():
+    global rend
+    rend.active_shader = rend.shader
+
+
+   
 
 
 

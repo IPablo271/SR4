@@ -26,6 +26,7 @@ class Render(object):
         self.texture = None
         self.Model = None
         self.View = None
+        self.active_shader = None
         self.clear() #Limpiar la pantalla.
     def viewport(self,x, y,width,height):
         self.viewportx = x
@@ -499,11 +500,13 @@ class Render(object):
                     self.zbuffer[x][y] = z
                     self.zcolor[x][y] = color(self.clamping(fact*255), self.clamping(fact*255), self.clamping(fact*255))
 
-                    if self.texture:
-                        tx = tA.x * w + tB.x * u + tC.x * v
-                        ty = tA.y * w + tB.y * u + tC.y * v
-
-                        self.current_color = self.texture.get_color_with_intensity(tx,ty,i)
+                    if(self.active_shader):
+                        self.current_color = self.active_shader()
+                    else:
+                        if self.texture:
+                            tx = tA.x * w + tB.x * u + tC.x * v
+                            ty = tA.y * w + tB.y * u + tC.y * v
+                            self.current_color = self.texture.get_color_with_intensity(tx,ty,i)
 
                     self.point(y, x)
         
@@ -562,5 +565,11 @@ class Render(object):
 
                 for x in range(xi,xf+1):
                     self.point(x,y)
+
+    def shader():
+        return color(255, 0, 0)
+
+
+
     
     
