@@ -27,6 +27,8 @@ class Render(object):
         self.Model = None
         self.View = None
         self.active_shader = None
+        self.vertex_array = []
+        self.vertex_buffer_object = []
         self.clear() #Limpiar la pantalla.
     def viewport(self,x, y,width,height):
         self.viewportx = x
@@ -501,7 +503,7 @@ class Render(object):
                     self.zcolor[x][y] = color(self.clamping(fact*255), self.clamping(fact*255), self.clamping(fact*255))
 
                     if(self.active_shader):
-                        self.current_color = self.active_shader()
+                        self.current_color = self.active_shader(aaa=y)
                     else:
                         if self.texture:
                             tx = tA.x * w + tB.x * u + tC.x * v
@@ -566,8 +568,19 @@ class Render(object):
                 for x in range(xi,xf+1):
                     self.point(x,y)
 
-    def shader():
-        return color(255, 0, 0)
+    def shader(self, **kwargs):
+        y = kwargs['aaa']
+        if(y < 100):
+            return color(255,0,0)
+        elif (y < 150):
+            return color(200,50,50)
+        elif (y < 200):
+            return color(150,100,100)
+        elif (y < 250):
+            return color(100,200,100)
+        else:
+            return color(0,255,0)
+
 
 
 

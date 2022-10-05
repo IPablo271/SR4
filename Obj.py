@@ -5,6 +5,7 @@ class Obj(object):
 
     self.vertices = []
     self.tvertices = []
+    self.nvertices = []
     self.faces = []
 
     for line in self.lines:
@@ -36,7 +37,13 @@ class Obj(object):
           self.faces.append([
             list(map(int, face.split('/')))
                 for face in value.split(' ') if face != ''
-        ]) 
+        ])
+        if prefix == 'vn':
+          self.nvertices.append(
+            list(
+              map(float, value.split(' '))
+            )
+        ) 
         
 
 
