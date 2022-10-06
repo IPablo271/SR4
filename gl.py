@@ -124,11 +124,14 @@ def glactiveshader():
 
 
    
-
+def gldraw(Triangles):
+    global rend
+    rend.draw(Triangles)
 
 
 def glFinish(archivo):
     rend.write(archivo) 
+
 
 
 

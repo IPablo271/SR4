@@ -27,8 +27,10 @@ class Render(object):
         self.Model = None
         self.View = None
         self.active_shader = None
+
         self.vertex_array = []
         self.vertex_buffer_object = []
+
         self.clear() #Limpiar la pantalla.
     def viewport(self,x, y,width,height):
         self.viewportx = x
@@ -366,6 +368,7 @@ class Render(object):
         cube = Obj(model)
 
         for face in cube.faces:
+
             if len(face) == 4:
                 f1 = face[0][0] - 1
                 f2 = face[1][0] - 1
@@ -377,7 +380,15 @@ class Render(object):
                 v3 = self.transform_vertex (cube.vertices[f3] )
                 v4 = self.transform_vertex (cube.vertices[f4] )
 
-                if self.texture:
+
+                self.vertex_buffer_object.append(v1)
+                self.vertex_buffer_object.append(v2)
+                self.vertex_buffer_object.append(v3)
+                self.vertex_buffer_object.append(v4)
+
+
+
+                if self.texture and len(cube.tvertices) !=0:
                     ft1 = face[0][1] - 1
                     ft2 = face[1][1] - 1
                     ft3 = face[2][1] - 1
@@ -388,14 +399,31 @@ class Render(object):
                     vt3 = V3(*cube.tvertices[ft3]) 
                     vt4 = V3(*cube.tvertices[ft4])
 
-                    self.trianglem((v1,v2,v3),(vt1,vt2,vt3))
-                    self.trianglem((v1,v3,v4),(vt1,vt3,vt4))
-                    
-                else:
-                    self.trianglem((v1,v2, v3))
-                    self.trianglem((v1,v3, v4))
+                    self.vertex_buffer_object.append(vt1)
+                    self.vertex_buffer_object.append(vt2)
+                    self.vertex_buffer_object.append(vt3)
+                    self.vertex_buffer_object.append(vt4)
+                
+                # f1n = face[0][2] - 1
+                # f2n = face[1][2] - 1
+                # f3n = face[2][2] - 1
+                # f4n = face[3][2] - 1
 
-            if len(face) == 3:
+                # fn1 = V3(*cube.nvertices[f1n])
+                # fn2 = V3(*cube.nvertices[f2n])
+                # fn3 = V3(*cube.nvertices[f3n])
+                # fn4 = V3(*cube.nvertices[f4n])
+
+                # self.vertex_buffer_object.append(fn1)
+                # self.vertex_buffer_object.append(fn2)
+                # self.vertex_buffer_object.append(fn3)
+                # self.vertex_buffer_object.append(fn3)
+
+
+                
+                    
+
+            if len(face) == 3 and len(cube.tvertices) != 0:
                 f1 = face[0][0] - 1
                 f2 = face[1][0] - 1
                 f3 = face[2][0] - 1
@@ -404,19 +432,71 @@ class Render(object):
                 v2 = self.transform_vertex (cube.vertices[f2])
                 v3 = self.transform_vertex (cube.vertices[f3])
 
-                if self.texture:
+                self.vertex_buffer_object.append(v1)
+                self.vertex_buffer_object.append(v2)
+                self.vertex_buffer_object.append(v3)
+    
+
+                if self.texture :
                     ft1 = face[0][1] - 1
                     ft2 = face[1][1] - 1
                     ft3 = face[2][1] - 1
 
                     vt1 = V3(*cube.tvertices[ft1])
                     vt2 = V3(*cube.tvertices[ft2])
-                    vt3 = V3(*cube.tvertices[ft3])    
-        
-                    self.trianglem((v1,v2,v3),(vt1, vt2, vt3))
+                    vt3 = V3(*cube.tvertices[ft3])
 
-                else:
-                    self.trianglem((v1, v2, v3))
+                    self.vertex_buffer_object.append(vt1)
+                    self.vertex_buffer_object.append(vt2)
+                    self.vertex_buffer_object.append(vt3)
+
+                # f1n = face[0][2] - 1
+                # f2n = face[1][2] - 1
+                # f3n = face[2][2] - 1
+    
+                # fn1 = V3(*cube.nvertices[f1n])
+                # fn2 = V3(*cube.nvertices[f2n])
+                # fn3 = V3(*cube.nvertices[f3n])
+    
+
+                # self.vertex_buffer_object.append(fn1)
+                # self.vertex_buffer_object.append(fn2)
+                # self.vertex_buffer_object.append(fn3)
+
+    def triangle_wireframe(self):
+        A = next(self.vertex_array)
+        B = next(self.vertex_array)
+        C = next(self.vertex_array)
+
+        if self.texture:
+            tA = next(self.vertex_array)
+            tB = next(self.vertex_array)
+            tC = next(self.vertex_array)
+
+        self.linevector(A, B)
+        self.linevector(B, C)
+        self.linevector(C, A)
+
+                
+    def draw(self, polygon):
+            self.vertex_array = iter(self.vertex_buffer_object)
+
+            if polygon == 'TRIANGLES':
+                try:
+                    while True:
+                        print("Entro al trianglem")
+                        self.trianglem()
+                except StopIteration:
+                    print('Done.')
+
+            if polygon == 'WIREFRAME':
+                try:
+                    while True:
+                        self.triangle_wireframe()
+                except StopIteration:
+                    print(" done . ")
+        
+    
     
     def bounding_box(self, A, B, C):
         coords = [(A.x, A.y), (B.x, B.y), (C.x, C.y)]
@@ -464,10 +544,17 @@ class Render(object):
 
 
 
-    def trianglem(self, vertices,tvertices = ()):
-        A , B , C = vertices
+    def trianglem(self):
+        A = next(self.vertex_array)
+        B = next(self.vertex_array)
+        C = next(self.vertex_array)
+
+
         if self.texture:
-            tA, tB, tC = tvertices
+            tA = next(self.vertex_array)
+            tB = next(self.vertex_array)
+            tC = next(self.vertex_array)
+        
 
         
         L = V3(0, 0, -1)
@@ -503,7 +590,8 @@ class Render(object):
                     self.zcolor[x][y] = color(self.clamping(fact*255), self.clamping(fact*255), self.clamping(fact*255))
 
                     if(self.active_shader):
-                        self.current_color = self.active_shader(aaa=y)
+                        self.current_color = self.shader(self)
+
                     else:
                         if self.texture:
                             tx = tA.x * w + tB.x * u + tC.x * v
@@ -568,19 +656,10 @@ class Render(object):
                 for x in range(xi,xf+1):
                     self.point(x,y)
 
-    def shader(self, **kwargs):
-        y = kwargs['aaa']
-        if(y < 100):
-            return color(255,0,0)
-        elif (y < 150):
-            return color(200,50,50)
-        elif (y < 200):
-            return color(150,100,100)
-        elif (y < 250):
-            return color(100,200,100)
-        else:
-            return color(0,255,0)
-
+    def shader():
+        return color(255, 0, 0)
+       
+            #return render.texture.get_color_with_intensity(tx, ty, intensity)
 
 
 
