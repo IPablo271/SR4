@@ -730,6 +730,9 @@ class Render(object):
             return self.texture.get_color_with_intensity(tx,ty,i)
        
             #return render.texture.get_color_with_intensity(tx, ty, intensity)
+        
+    def shader2(self,**kwargs):
+         color(255, 0, 0)
 
 
 

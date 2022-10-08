@@ -25,6 +25,18 @@ r.texture = Texture('Mew.bmp')
 r.load_model('Mew.obj',(0.15,0.15,0.15),  (0,0,0),(0,0.8,0))
 r.draw('TRIANGLES')
 
+r.light = V3(0,0,1)
+r.texture = Texture('rockt.bmp')
+r.load_model('Rock2.obj',(0.035,0.035,0.035),  (-0.43,-0.21,0),(0,0.5,0))
+r.draw('TRIANGLES')
+
+r.light = V3(1,1,1)
+r.active_shader = r.shader2
+r.texture = Texture('Apple.bmp')
+r.load_model('Apple.obj',(0.08,0.08,0.08),  (-0.2,-1,0),(0,0,0))
+r.draw('TRIANGLES')
+
+
 
 
 r.write('Proyecto.bmp')
