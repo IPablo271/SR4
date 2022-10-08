@@ -27,7 +27,7 @@ class Render(object):
         self.Model = None
         self.View = None
         self.active_shader = None
-        self.light = V3(0,0,1)
+        self.light = V3(1,1,1)
 
         self.vertex_array = []
         self.vertex_buffer_object = []

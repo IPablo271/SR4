@@ -128,6 +128,11 @@ def gldraw(Triangles):
     global rend
     rend.draw(Triangles)
 
+def glloadBackground(textura):
+    global rend
+    backgorund = Texture(textura)
+    rend.framebuffer = backgorund.pixels
+
 
 def glFinish(archivo):
     rend.write(archivo) 
